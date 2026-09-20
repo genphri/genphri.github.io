@@ -1,0 +1,54 @@
+{
+  "timeline_seconds": {
+    "initial": 0,
+    "feedback": 3,
+    "regenerate": 7,
+    "revised": 8.2,
+    "end": 15
+  },
+  "stages": {
+    "human-generation": {
+      "task": "Back-of-neck itch relief",
+      "feedback": "Move both knees outward to separate the legs and feet. Rotate the left hip outward by 12° and the right hip outward by 12°.",
+      "resultFeedback": "Pose Accepted",
+      "video": "media/generation/human-generation.mp4",
+      "poster": "media/generation/human-generation.jpg",
+      "beforeSeverity": "moderate",
+      "afterSeverity": "negligible"
+    },
+    "human-placement": {
+      "task": "Hand warming",
+      "feedback": "Move the person forward on the seat so the lower legs clear the front cushion.",
+      "resultFeedback": "Placement Improved",
+      "video": "media/generation/human-placement.mp4",
+      "poster": "media/generation/human-placement.jpg",
+      "beforeSeverity": "moderate",
+      "afterSeverity": "mild"
+    },
+    "robot-placement": {
+      "task": "Back and leg bathing",
+      "feedback": "Move the robot toward the hips to reach the back and ankles.",
+      "resultFeedback": "Placement Accepted",
+      "video": "media/generation/robot-placement.mp4",
+      "poster": "media/generation/robot-placement.jpg",
+      "beforeSeverity": "moderate",
+      "afterSeverity": "negligible"
+    },
+    "robot-motion": {
+      "task": "Spine assessment",
+      "feedback": "Shorten the retreat to stay within reach. Move the lowest contact upward from the hips onto the spine.",
+      "timeline_seconds": {
+        "initial": 0,
+        "feedback": 7,
+        "regenerate": 11,
+        "revised": 12.2,
+        "end": 24
+      },
+      "resultFeedback": "Motion Accepted",
+      "video": "media/generation/robot-motion.mp4",
+      "poster": "media/generation/robot-motion.jpg",
+      "beforeSeverity": "severe",
+      "afterSeverity": "negligible"
+    }
+  }
+}

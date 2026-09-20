@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#20595b">
+<title>GenPHRI: Agentic Generative Simulation for Physical Human-Robot Interaction</title>
+<meta name="description" content="From natural-language prompts to physical human-robot interaction. GenPHRI generates 50 assistive scenarios and transfers generated behaviors to real robots through direct execution and policy learning.">
+<meta property="og:title" content="GenPHRI: Agentic Generative Simulation for Physical Human-Robot Interaction">
+<meta property="og:description" content="Agentic generation of physical human-robot interaction scenarios from task prompts.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="images/paper/teaser.webp">
+<link rel="icon" type="image/svg+xml" href="static/favicon.svg">
+<link rel="preload" href="static/css/fonts/LinLibertine_R.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="static/css/sim-demos.css">
+<link rel="stylesheet" href="static/css/site.css">
+<link rel="stylesheet" href="static/css/generation.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.169.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"}}</script>
+<script defer src="static/vendor/highlight/highlight.min.js"></script>
+<script defer src="static/vendor/highlight/yaml.min.js"></script>
+<script defer src="static/js/site.js"></script>
+<script defer src="static/js/generation.js"></script>
+</head>
+<body>
+<a class="skip-link" href="#overview">Skip to content</a>
+<header class="site-nav" inert>
+ <a class="wordmark" href="#top" aria-label="GenPHRI home">GenPHRI</a>
+ <nav aria-label="Main navigation"><a href="#overview">Overview</a><a href="#sim-demos">Scenarios</a><a href="#real-world">Real world</a><a href="#method">Scenario generation</a><a href="#orchestration">Orchestrator actions</a><a href="#method-film">Full walkthrough</a></nav>
+ <button class="motion-toggle" id="motion-toggle" type="button" aria-pressed="false">Pause videos <span aria-hidden="true">Ⅱ</span></button>
+</header>
+<button class="motion-toggle hero-motion-toggle" id="hero-motion-toggle" type="button" aria-pressed="false">Pause videos <span aria-hidden="true">Ⅱ</span></button>
+<main>
+<section class="hero" id="top" aria-labelledby="project-title">
+ <video id="hero-video" class="hero-video" src="media/hero-grid.mp4" poster="media/hero-grid.jpg" muted loop playsinline preload="metadata" aria-hidden="true"></video>
+ <div class="hero-shade"></div>
+ <div class="hero-content">
+  <p class="hero-brand">GenPHRI</p>
+  <h1 id="project-title">Agentic Generative Simulation<br>for Physical Human-Robot Interaction</h1>
+  <div class="hero-actions"><a class="button button-light" href="#overview">Explore the project <span aria-hidden="true">↓</span></a><a class="button button-glass" href="#walkthrough-video"><span aria-hidden="true">▷</span> Watch the walkthrough</a></div>
+ </div>
+ <div class="hero-bottom"><div class="hero-switch" aria-label="Hero video"><button type="button" data-hero="orbit" aria-pressed="false">Orbit</button><button type="button" data-hero="grid" aria-pressed="true">Task wall</button></div></div>
+</section>
+<div class="research-meta">
+ <p class="authors">Anonymous Authors</p>
+</div>
+<section class="section" id="overview">
+ <div class="container">
+  <div class="section-heading intro-heading"><h2>From task prompt to real world execution.</h2><p>Physical human-robot interaction is hard to author by hand. <strong>GenPHRI</strong> turns natural-language task descriptions into complete simulated scenarios: a human, a setting, a robot, and the motion that connects them.</p></div>
+  <div class="overview-media"><video class="" data-src="media/overview.mp4" poster="media/overview.jpg" muted loop playsinline preload="none" controls aria-label="Animated overview from task prompt and generated simulation to real robot execution"></video></div>
+ </div>
+</section>
+  <section class="section gallery-section" id="sim-demos">
+    <div class="container is-max-widescreen">
+      <header class="sim-header">
+        <h2 class="title is-3"><span class="dvima">50 pHRI scenarios generated purely from prompts.</span></h2>
+        <p class="sim-subtitle">Select a scenario to watch its motion, rotate the scene, and inspect its task specification.</p>
+      </header>
+
+      <div class="sim-toolbar"><span class="gallery-total">50 scenarios <span>/</span> 9 task families</span>
+        <label class="sim-toolbar-label" for="sim-category">Category</label>
+        <div class="select">
+          <select id="sim-category"></select>
+        </div>
+      </div>
+
+      <div class="columns sim-top">
+        <div class="column is-5">
+          <div class="sim-grid" id="sim-grid" aria-label="Generated scenarios"></div>
+        </div>
+        <div class="column is-7">
+          <div class="sim-prompt prompt-box" id="sim-prompt">
+            <p class="sim-prompt-meta"><span id="sim-prompt-category"></span> <span id="sim-prompt-title"></span></p>
+            <p class="sim-prompt-text"><strong>Prompt:</strong> <span id="sim-prompt-text"></span></p>
+          </div>
+          <video id="sim-video" class="sim-video" loop muted playsinline controls preload="none" aria-label="Selected generated scenario, played at twice real-time speed"></video>
+        </div>
+      </div>
+
+      <div class="columns sim-bottom">
+        <div class="column is-half">
+          <div class="sim-panel">
+            <div class="sim-panel-header">
+              <span>Generated scene</span>
+              <button class="sim-panel-action" id="sim-viewer-reset" type="button" title="Reset view" aria-label="Reset view">
+                <span aria-hidden="true">↺</span>
+              </button>
+            </div>
+            <div class="sim-viewer" id="sim-viewer">
+              <div class="sim-viewer-status" id="sim-viewer-status">Loading scene&hellip;</div>
+              <div class="sim-viewer-hint">Drag to rotate &middot; Scroll to zoom &middot; Right-drag to pan</div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-half">
+          <div class="sim-panel">
+            <div class="sim-panel-header">
+              <span id="sim-code-title">Orchestrator-Generated Task Specification</span>
+            </div>
+            <pre class="sim-code-body" id="sim-code-scroll"><code id="sim-code" class="language-yaml"></code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+<section class="section" id="real-world">
+ <div class="container">
+  <div class="section-heading"><h2>Real-world deployment</h2><p>Generated motion can be deployed directly for a rapid physical preview, or used to train a vision policy for closed-loop interaction. Both routes start with the same scenario.</p></div>
+  <div class="deployment-grid">
+   <article class="deployment direct"><div class="deployment-heading"><h3>Direct Execution</h3><p>Fit a human body mesh from a single image, then evaluate the generated motion on that body. No demonstration collection or policy training.</p><p class="deployment-takeaway">A fast way to inspect the intended behavior. Contact coverage depends on the accuracy of the fitted body mesh.</p></div><video class="" data-src="media/direct-execution.mp4" poster="media/direct-execution.jpg" muted loop playsinline preload="none" aria-label="Direct execution of generated back and leg bathing motion"></video><p class="media-note">4x speed</p></article>
+   <article class="deployment policy"><div class="deployment-heading"><h3>Policy Learning</h3><p>Collect demonstrations across diverse simulated bodies and train a visuomotor policy that responds to observations throughout the interaction.</p><p class="deployment-takeaway">Higher contact coverage through closed-loop control. Trained entirely in simulation, with no real-world fine-tuning.</p></div><video class="" data-src="media/learned-policy.mp4" poster="media/learned-policy.jpg" muted loop playsinline preload="none" aria-label="Learned policy bathing a participant in the real-world study"></video><p class="media-note">4x speed</p></article>
+  </div>
+  <div class="results-layout"><div class="results-copy"><h3>Real-world target completion</h3><p>In a 12-participant study, learned policies achieved <strong>80% bathing</strong> and <strong>79% scratching</strong> target completion without instructed arm movement.</p><p>Direct execution and policy learning had no statistically significant difference in bathing prompt-adherence ratings, while learned policies achieved substantially higher contact coverage.</p></div><figure class="completion-chart"><picture><source media="(max-width: 600px)" srcset="images/results/target-completion-mobile.svg" width="720" height="684"><img src="images/results/target-completion.svg" width="1080" height="660" loading="lazy" alt="Mean target completion with standard deviation across participants: bathing policy 80 ± 11 percent, bathing direct execution 39 ± 25 percent, scratching policy 79 ± 16 percent, and scratching policy with arm movement 63 ± 20 percent."></picture><figcaption>Completion measures targets removed or contacted in a 12-participant real world user study.</figcaption></figure></div>
+  <details class="research-detail study-disclosure" data-video-disclosure><summary>Watch six user-study trials</summary><figure class="study-film"><video class="" data-src="media/user-study.mp4" poster="media/user-study.jpg" muted loop playsinline preload="none" controls aria-label="Study montage showing real bathing and scratching interactions, with participant faces blurred"></video><figcaption>Bathing and scratching user-study trials.</figcaption></figure></details>
+  <details class="research-detail"><summary>How completion and prompt adherence were measured</summary><div><p>Bathing used 15 evenly distributed removable targets across the back and legs; scratching used five contact markers along the forearm. Participants rated adherence to the original task prompt on a seven-point scale.</p><p>Each policy was trained on 1,000 simulated demonstrations across 100 human bodies. Simulated evaluation used 20 held-out bodies and two random seeds per body. Mean simulated completion was 86% for bathing and 92% for scratching. Simulated targets used a 2 cm proximity criterion, so the simulation and physical measurements are not identical.</p><p>Scratching with instructed arm movement reached 63% completion in real-world trials, highlighting a remaining challenge in adapting to human motion.</p></div></details>
+ </div>
+</section>
+<section class="section method-section" id="method">
+ <div class="container">
+  <div class="section-heading"><h2>Scenario generation</h2></div>
+  <div class="construction"><div class="stage-tabs" role="tablist" aria-label="Scenario construction stages">
+   <button type="button" role="tab" id="stage-human-generation" aria-selected="true" aria-controls="stage-panel" data-stage="human-generation"><span>1</span><strong>Generate the human</strong></button>
+   <button type="button" role="tab" id="stage-human-placement" aria-selected="false" aria-controls="stage-panel" tabindex="-1" data-stage="human-placement"><span>2</span><strong>Place the human</strong></button>
+   <button type="button" role="tab" id="stage-robot-placement" aria-selected="false" aria-controls="stage-panel" tabindex="-1" data-stage="robot-placement"><span>3</span><strong>Place the robot</strong></button>
+   <button type="button" role="tab" id="stage-robot-motion" aria-selected="false" aria-controls="stage-panel" tabindex="-1" data-stage="robot-motion"><span>4</span><strong>Generate the motion</strong></button>
+  </div><div class="stage-panel" id="stage-panel" role="tabpanel" aria-labelledby="stage-human-generation" tabindex="0">
+   <div class="stage-media-panel">
+    <p id="stage-status" class="stage-error" role="status" hidden></p>
+    <video class="stage-video" tabindex="0" aria-keyshortcuts="Space K" data-src="media/generation/human-generation.mp4" poster="media/generation/human-generation.jpg" muted playsinline preload="none" controls aria-label="Back-of-neck itch relief: initial attempt, critic feedback, and regeneration"></video>
+    <div class="generation-progress" aria-hidden="true"><span></span></div>
+    <div class="generation-phases" aria-label="Explore this generation sequence">
+     <button type="button" data-generation-phase="initial" aria-pressed="true">Initial attempt</button>
+     <button type="button" data-generation-phase="feedback" aria-pressed="false">Critic feedback</button>
+     <button type="button" data-generation-phase="revised" aria-pressed="false">Revised result</button>
+    </div>
+   </div>
+   <aside class="stage-critic" id="stage-critic" aria-labelledby="stage-critic-title">
+    <div class="stage-context"><div class="prompt-box action-prompt"><p><strong>Task:</strong> <span id="stage-task">Back-of-neck itch relief</span></p></div></div>
+    <div class="stage-critic-heading"><div><h3 id="stage-critic-title">Critic</h3></div><span class="critic-badge" aria-hidden="true"><svg class="critic-symbol" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.36-6.36L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.36 6.36L3 16M3 21v-5h5"/></svg></span></div>
+    <div class="stage-critic-feedback">
+     <div class="critic-speech"><p id="stage-feedback" aria-live="polite" aria-atomic="true">Move both knees outward to separate the legs and feet. Rotate the left hip outward by 12° and the right hip outward by 12°.</p></div>
+     <p class="stage-severity">Critic severity: <span id="stage-severity">moderate</span></p>
+    </div>
+   </aside>
+  </div></div>
+ </div>
+</section>
+<section class="section orchestration-section">
+ <div class="container">
+  <section class="orchestration" id="orchestration" aria-labelledby="orchestration-title">
+   <div class="section-heading"><h2 id="orchestration-title">Orchestrator Actions</h2></div>
+   <div class="action-tabs" aria-label="Orchestrator actions">
+    <button type="button" id="tab-accept" data-orchestration-tab="accept">Accept</button>
+    <button type="button" id="tab-retry" data-orchestration-tab="retry">Steer: retry</button>
+    <button type="button" id="tab-resume" data-orchestration-tab="resume">Steer: resume</button>
+    <button type="button" id="tab-backtrack" data-orchestration-tab="backtrack">Backtrack</button>
+   </div>
+   <article class="action-panel" id="action-accept" aria-labelledby="tab-accept">
+    <div class="action-context">
+     <div class="prompt-box action-prompt"><p><strong>Task:</strong> Scalp Scratching</p></div>
+     <dl class="action-metadata"><div><dt>Stage</dt><dd>Robot placement</dd></div><div><dt>Critic Flags</dt><dd><span class="action-flag">Poor scalp reach</span></dd></div></dl>
+    </div>
+    <div class="action-comparison"><figure class="comparison-pane"><figcaption><span>Before</span><strong class="comparison-status flagged">Too far from the scalp</strong></figcaption><div class="comparison-media action-scene" data-scene="media/orchestrator/scenes/accept-before.glb" data-camera="media/orchestrator/scenes/accept-before.json" data-label="Accept, before" data-state="pending"><img src="media/orchestrator/scenes/accept-before.jpg" alt="Last candidate: robot beside the knees, failing scalp reachability" loading="lazy"><span class="action-scene-status" role="status">Loading scene…</span><div class="sim-viewer-hint">Drag to rotate &middot; Scroll to zoom &middot; Right-drag to pan</div></div></figure><figure class="comparison-pane"><figcaption><span>After</span><strong class="comparison-status passed">Earlier best accepted</strong></figcaption><div class="comparison-media action-scene" data-scene="media/orchestrator/scenes/accept-after.glb" data-camera="media/orchestrator/scenes/accept-after.json" data-label="Accept, after" data-state="pending"><img src="media/orchestrator/scenes/accept-after.jpg" alt="Accepted earlier candidate: robot behind the chair, closer to the scalp and passing reachability and clearance gates" loading="lazy"><span class="action-scene-status" role="status">Loading scene…</span><div class="sim-viewer-hint">Drag to rotate &middot; Scroll to zoom &middot; Right-drag to pan</div></div></figure></div>
+    <div class="action-scene-tools"><button type="button" data-reset-scenes>Reset views</button></div>
+    <div class="action-reasoning"><strong>Orchestrator Excerpt</strong><p>Attempts are exhausted. Accept the earlier placement that passes reachability and clearance checks, despite its less-preferred approach from behind.</p></div>
+   </article>
+   <article class="action-panel" id="action-retry" aria-labelledby="tab-retry">
+    <div class="action-context">
+     <div class="prompt-box action-prompt"><p><strong>Task:</strong> Head and Neck Towel Drying</p></div>
+     <dl class="action-metadata"><div><dt>Stage</dt><dd>Pose generation</dd></div><div><dt>Critic Flags</dt><dd><span class="action-flag">Hands behind the hips</span></dd></div></dl>
+    </div>
+    <div class="action-comparison"><figure class="comparison-pane"><figcaption><span>Before</span><strong class="comparison-status flagged">Wrong arm position</strong></figcaption><div class="comparison-media action-scene" data-scene="media/orchestrator/scenes/retry-before.glb" data-camera="media/orchestrator/scenes/retry-before.json" data-label="Retry, before" data-state="pending"><img src="media/orchestrator/scenes/retry-before.jpg" alt="Rejected pose with arms hanging behind the hips instead of forward over the lap" loading="lazy"><span class="action-scene-status" role="status">Loading scene…</span><div class="sim-viewer-hint">Drag to rotate &middot; Scroll to zoom &middot; Right-drag to pan</div></div></figure><figure class="comparison-pane"><figcaption><span>After</span><strong class="comparison-status passed">Pose accepted</strong></figcaption><div class="comparison-media action-scene" data-scene="media/orchestrator/scenes/retry-after.glb" data-camera="media/orchestrator/scenes/retry-after.json" data-label="Retry, after" data-state="pending"><img src="media/orchestrator/scenes/retry-after.jpg" alt="Accepted pose after the contextual retry, with elbows bent and hands forward over the lap" loading="lazy"><span class="action-scene-status" role="status">Loading scene…</span><div class="sim-viewer-hint">Drag to rotate &middot; Scroll to zoom &middot; Right-drag to pan</div></div></figure></div>
+    <div class="action-scene-tools"><button type="button" data-reset-scenes>Reset views</button></div>
+    <div class="action-reasoning"><strong>Orchestrator Excerpt</strong><p>The hands remain beside the hips across repeated attempts. Retry with explicit guidance to bend the elbows forward and bring the hands onto the lap.</p></div>
+   </article>
+   <article class="action-panel" id="action-resume" aria-labelledby="tab-resume">
+    <div class="action-context">
+     <div class="prompt-box action-prompt"><p><strong>Task:</strong> Right Foot Sponge Bathing</p></div>
+     <dl class="action-metadata"><div><dt>Stage</dt><dd>Robot placement</dd></div><div><dt>Critic Flags</dt><dd><span class="action-flag">Poor reach to the right foot</span></dd></div></dl>
+    </div>
+    <div class="action-comparison"><figure class="comparison-pane"><figcaption><span>Before</span><strong class="comparison-status flagged">Needs refinement</strong></figcaption><div class="comparison-media action-scene" data-scene="media/orchestrator/scenes/resume-before.glb" data-camera="media/orchestrator/scenes/resume-before.json" data-label="Resume, before" data-state="pending"><img src="media/orchestrator/scenes/resume-before.jpg" alt="Before resume: needs refinement" loading="lazy"><span class="action-scene-status" role="status">Loading scene…</span><div class="sim-viewer-hint">Drag to rotate &middot; Scroll to zoom &middot; Right-drag to pan</div></div></figure><figure class="comparison-pane"><figcaption><span>After</span><strong class="comparison-status passed">Proper angle</strong></figcaption><div class="comparison-media action-scene" data-scene="media/orchestrator/scenes/resume-after.glb" data-camera="media/orchestrator/scenes/resume-after.json" data-label="Resume, after" data-state="pending"><img src="media/orchestrator/scenes/resume-after.jpg" alt="After resume: robot placed at the revised angle toward the right foot" loading="lazy"><span class="action-scene-status" role="status">Loading scene…</span><div class="sim-viewer-hint">Drag to rotate &middot; Scroll to zoom &middot; Right-drag to pan</div></div></figure></div>
+    <div class="action-scene-tools"><button type="button" data-reset-scenes>Reset views</button></div>
+    <div class="action-reasoning"><strong>Orchestrator Excerpt</strong><p>The last candidate improved, but reach remains limited. Continue refinement with guidance to move closer to the foot.</p></div>
+   </article>
+   <article class="action-panel" id="action-backtrack" aria-labelledby="tab-backtrack">
+    <div class="action-context">
+     <div class="prompt-box action-prompt"><p><strong>Task:</strong> Mid-Back Percussion</p></div>
+     <dl class="action-metadata"><div><dt>Stage</dt><dd>Robot placement</dd></div><div><dt>Critic Flags</dt><dd><span class="action-flag">Mid-back unreachable</span></dd></div></dl>
+    </div>
+    <div class="action-comparison"><figure class="comparison-pane"><figcaption><span>Before</span><strong class="comparison-status flagged">Target unreachable</strong></figcaption><div class="comparison-media action-scene" data-scene="media/orchestrator/scenes/backtrack-before.glb" data-camera="media/orchestrator/scenes/backtrack-before.json" data-label="Backtrack, before" data-state="pending"><img src="media/orchestrator/scenes/backtrack-before.jpg" alt="Before backtrack: target unreachable" loading="lazy"><span class="action-scene-status" role="status">Loading scene…</span><div class="sim-viewer-hint">Drag to rotate &middot; Scroll to zoom &middot; Right-drag to pan</div></div></figure><figure class="comparison-pane"><figcaption><span>After</span><strong class="comparison-status passed">Placement accepted</strong></figcaption><div class="comparison-media action-scene" data-scene="media/orchestrator/scenes/backtrack-after.glb" data-camera="media/orchestrator/scenes/backtrack-after.json" data-label="Backtrack, after" data-state="pending"><img src="media/orchestrator/scenes/backtrack-after.jpg" alt="After backtrack: placement accepted" loading="lazy"><span class="action-scene-status" role="status">Loading scene…</span><div class="sim-viewer-hint">Drag to rotate &middot; Scroll to zoom &middot; Right-drag to pan</div></div></figure></div>
+    <div class="action-scene-tools"><button type="button" data-reset-scenes>Reset views</button></div>
+    <div class="action-reasoning"><strong>Orchestrator Excerpt</strong><p>The current human placement blocks access. Revisit it before trying robot placement again.</p></div>
+   </article>
+  </section>
+ </div>
+</section>
+<section class="section walkthrough-section" id="method-film">
+ <div class="container">
+  <div class="walkthrough"><div><div class="section-heading"><h2>Full pipeline walkthrough</h2></div><div class="prompt-box walkthrough-prompt"><p><strong>Task prompt:</strong> A person lies face-down on a bed, arms resting alongside the torso and legs extended straight. A robot bathes them with a sponge, wiping the whole back in several passes and then the back of each leg down to the ankle, and it pulls the sponge away from the body when it finishes. The robot must not touch the buttocks or the area between the legs.</p></div></div><div class="walkthrough-player" data-click-to-play-player><video id="walkthrough-video" class="walkthrough-video" width="1280" height="720" tabindex="0" data-src="media/pipeline.mp4" data-click-to-play poster="media/pipeline.jpg" muted loop playsinline preload="none" controls aria-label="99-second end-to-end walkthrough of the GenPHRI bathing pipeline"></video><button type="button" class="walkthrough-cover" aria-controls="walkthrough-video"><img src="images/paper/method.webp" width="2400" height="1208" loading="lazy" alt="GenPHRI framework: four scenario generation stages, an orchestrator with critic feedback, and direct execution or demonstration collection, policy training, and simulation evaluation leading to real-world behaviors."><span class="walkthrough-cover-label">Click to play</span></button></div></div>
+ </div>
+</section>
+</main>
+<footer class="site-footer"><div><a class="wordmark" href="#top">GenPHRI</a></div><p>Agentic Generative Simulation<br>for Physical Human-Robot Interaction</p><a href="#top">Back to top ↑</a></footer>
+</body>
+</html>
